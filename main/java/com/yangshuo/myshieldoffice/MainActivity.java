@@ -307,17 +307,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     protected void onResume(){
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        Date date = new Date(System.currentTimeMillis());
-//        txtHello.setText("定位重启onResume："+df.format(date));
-//        MailManager.getInstance().sendMail("定位重启onResume："+df.format(date), "XXXX");
         super.onResume();
     }
     protected void onPause(){
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        Date date = new Date(System.currentTimeMillis());
-//        txtHello.setText("定位暂停onPause："+df.format(date));
-//        MailManager.getInstance().sendMail("定位暂停onPause："+df.format(date), "XXXX");
         super.onPause();
     }
 
