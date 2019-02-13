@@ -1,10 +1,10 @@
 # MyShieldOffice
-support for android 8.0
-Already tested on HUAWEI Mate9 EMUI 8.0/android 8.0 -- 2019.2.13
-
-Feature list:
-
-Monitor incoming/outgoing calls.
+support for android 8.0<br>
+Already tested on HUAWEI Mate9 EMUI 8.0/android 8.0 -- 2019.2.13<br>
+<br>
+Feature list:<br>
+<br>
+Monitor incoming/outgoing calls.<br>
 1.1 Save every call number even if more than 2 calls at same time.
 1.2 Save missing call number.
 Report call record via email whenever network available.
