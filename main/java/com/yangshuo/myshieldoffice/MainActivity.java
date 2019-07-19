@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 bNeedRequestPermission = true;
                 String [] permissions = {Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.FOREGROUND_SERVICE, //2019.7.2
                         Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_SETTINGS, //android 6.0
@@ -71,21 +72,24 @@ public class MainActivity extends AppCompatActivity {
         btnTmp.setText("1");
         btnTmp = (Button)findViewById(R.id.btnViewMate9Wifi);
         btnTmp.setEnabled(false);
-        btnTmp.setText("2");
+        btnTmp.setText("Mate9wifi");
         btnTmp = (Button)findViewById(R.id.btnView360);
         btnTmp.setEnabled(false);
-        btnTmp.setText("3");
+        btnTmp.setText("360");
+        btnTmp = (Button)findViewById(R.id.btnViewMate9home);
+        btnTmp.setEnabled(false);
+        btnTmp.setText("2");
         btnTmp = (Button)findViewById(R.id.btnViewMyMate9);
         btnTmp.setEnabled(false);
-        btnTmp.setText("4");
+        btnTmp.setText("3");
         btnTmp = (Button)findViewById(R.id.btnStart);
-        btnTmp.setText("5");
+        btnTmp.setText("4");
         btnTmp.setEnabled(false);
         btnTmp = (Button)findViewById(R.id.btnStop);
-        btnTmp.setText("6");
+        btnTmp.setText("5");
         btnTmp.setEnabled(false);
         btnTmp = (Button)findViewById(R.id.btnSpeechToText);
-        btnTmp.setText("0");
+        btnTmp.setText("6");
         btnTmp.setEnabled(false);
 
         if(bNeedRequestPermission==false)
@@ -169,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadGPSinfo(View view) {
-        String strDeviceID = "865970037231410"+CommonParams.PATTERN_COMMA_SPLIT+"867662020947601"+CommonParams.PATTERN_COMMA_SPLIT
-                +"868062022152970"+CommonParams.PATTERN_COMMA_SPLIT+"864678039924814"+CommonParams.PATTERN_COMMA_SPLIT+"868062020476223";
+        String strDeviceID = "865970037231410"/*mate9wifi*/+CommonParams.PATTERN_COMMA_SPLIT+"867662020947601"/*360*/+CommonParams.PATTERN_COMMA_SPLIT
+                +"864678039924814"/*myMate9*/+CommonParams.PATTERN_COMMA_SPLIT+"864684033630746"/*mate9home*/;
         MailManager.getInstance().getGPSFromOutBox(strDeviceID);
     }
 
@@ -178,6 +182,14 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, MapActivity.class);
         Bundle paramBundle = new Bundle();
         paramBundle.putString(CommonParams.PARAM_NAME, "865970037231410");
+        intent.putExtras(paramBundle);
+        startActivity(intent);
+    }
+
+    public void viewMapMate9home(View view) {
+        Intent intent = new Intent(MainActivity.this, MapActivity.class);
+        Bundle paramBundle = new Bundle();
+        paramBundle.putString(CommonParams.PARAM_NAME, "864684033630746");
         intent.putExtras(paramBundle);
         startActivity(intent);
     }
@@ -242,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             btnTmp.setText("收GPS邮件");
             btnTmp = (Button)findViewById(R.id.btnViewMate9Wifi);
             btnTmp.setEnabled(true);
-            btnTmp.setText("查看Mate9无wifi");
+            btnTmp.setText("查看Mate9wifi");
 //            btnTmp.setClickable(true);
             btnTmp = (Button)findViewById(R.id.btnView360);
             btnTmp.setEnabled(true);
@@ -250,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
             btnTmp = (Button)findViewById(R.id.btnViewMyMate9);
             btnTmp.setEnabled(true);
             btnTmp.setText("查看Mate9金");
+            btnTmp = (Button)findViewById(R.id.btnViewMate9home);
+            btnTmp.setEnabled(true);
+            btnTmp.setText("查看家里Mate9");
             btnTmp = (Button)findViewById(R.id.btnStart);
             btnTmp.setEnabled(true);
             btnTmp.setText("启动GPS");
@@ -268,21 +283,24 @@ public class MainActivity extends AppCompatActivity {
             btnTmp.setText("1");
             btnTmp = (Button)findViewById(R.id.btnViewMate9Wifi);
             btnTmp.setEnabled(false);
-            btnTmp.setText("2");
+            btnTmp.setText("Mate9wifi");
             btnTmp = (Button)findViewById(R.id.btnView360);
             btnTmp.setEnabled(false);
-            btnTmp.setText("3");
+            btnTmp.setText("360");
+            btnTmp = (Button)findViewById(R.id.btnViewMate9home);
+            btnTmp.setEnabled(false);
+            btnTmp.setText("2");
             btnTmp = (Button)findViewById(R.id.btnViewMyMate9);
             btnTmp.setEnabled(false);
-            btnTmp.setText("4");
+            btnTmp.setText("3");
             btnTmp = (Button)findViewById(R.id.btnStart);
-            btnTmp.setText("5");
+            btnTmp.setText("4");
             btnTmp.setEnabled(false);
             btnTmp = (Button)findViewById(R.id.btnStop);
-            btnTmp.setText("6");
+            btnTmp.setText("5");
             btnTmp.setEnabled(false);
             btnTmp = (Button)findViewById(R.id.btnSpeechToText);
-            btnTmp.setText("0");
+            btnTmp.setText("6");
             btnTmp.setEnabled(false);
         }
 
@@ -307,9 +325,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     protected void onResume(){
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        Date date = new Date(System.currentTimeMillis());
+//        txtHello.setText("定位重启onResume："+df.format(date));
+//        MailManager.getInstance().sendMail("定位重启onResume："+df.format(date), "XXXX");
         super.onResume();
     }
     protected void onPause(){
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        Date date = new Date(System.currentTimeMillis());
+//        txtHello.setText("定位暂停onPause："+df.format(date));
+//        MailManager.getInstance().sendMail("定位暂停onPause："+df.format(date), "XXXX");
         super.onPause();
     }
 
@@ -336,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public native String stringFromJNI();
 }
-//TODO: signed key 密码: ******     http://lbs.amap.com/dev/key/app
+//TODO: signed key 密码: 810426     http://lbs.amap.com/dev/key/app
 /**
  * 1.装好之后要立即运行，才会创建图标，并开启服务
  * 2.设置->隐私管理->给自启动权限

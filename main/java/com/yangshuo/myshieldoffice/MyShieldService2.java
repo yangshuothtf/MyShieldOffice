@@ -1,6 +1,9 @@
 package com.yangshuo.myshieldoffice;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
@@ -15,9 +18,12 @@ public class MyShieldService2 extends Service {
 	private TelephonyManager tm = null;
 	// 监听器对象
 	private PhoneListener mListener = null;
+//	private OutCallReceiver receiver = null;//去电接收者
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle bundle=intent.getExtras();
+//		String strMachineType =bundle.getString(CommonParams.PARAM_TYPE);
+//    boolean bUseSysRecorder = bundle.getBoolean(CommonParams.PARAM_SYSRECORDER, true);
 		boolean bSendOnlineNotify = false;
 		if(bundle.isEmpty()==false)
 		{
@@ -25,6 +31,7 @@ public class MyShieldService2 extends Service {
 		}
 		//启动alarm，定时启动GPS
 		CfgParamMgr.getInstance().initContext(getApplicationContext());
+//		CfgParamMgr.getInstance().readCfgFile();//读进状态
 		CfgParamMgr.getInstance().checkAlarmGPS(true);
 
 		// 后台监听电话的呼叫状态。
@@ -42,10 +49,50 @@ public class MyShieldService2 extends Service {
 		{
 			mListener.sendOnlineNotify();
 		}
+		/*2019.2.13: 8.0中，permission denial，后台服务权限不够，拿不到这个消息
+        //注册去电广播接收者
+		if(receiver==null)
+		{
+			receiver = new OutCallReceiver();
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
+			registerReceiver(receiver, filter);
+		}*/
 		//       return super.onStartCommand(intent, flags, startId);
 		//使用这个返回值时，如果在执行完onStartCommand后，服务被异常kill掉，系统会自动重启该服务，并将Intent的值传入。
 		return START_REDELIVER_INTENT;
 	}
+    /* 2019.2.13: 8.0中，permission denial，后台服务权限不够，拿不到这个消息
+   // 去电广播接收者
+	class OutCallReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)){
+				mListener.strCallNumber += "." + intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER) +".out";
+				// 这就是我们拿到的播出去的电话号码
+				//这个消息晚于PhoneStateListener，迟到了
+				//mlistener.strCallNumber = getResultData();
+				//实际上,下面的代码从未被执行
+				if(mListener.strLastCallName.isEmpty()==false)
+				{
+					if(mListener.callStatus==TelephonyManager.CALL_STATE_IDLE)
+					{
+						//改变文件名
+						File file = new File(CommonParams.path, mListener.strLastCallName);
+						if(file.exists())
+						{
+							String strLastCallNewName = mListener.strLastCallTime + mListener.strCallNumber + ".aac";
+							file.renameTo(new File(CommonParams.path, strLastCallNewName));
+							mListener.strLastCallName = "";
+							mListener.strLastCallTime = "";
+							mListener.strCallNumber = "";
+						}
+					}
+				}
+			}
+		}
+	}
+	*/
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -56,18 +103,27 @@ public class MyShieldService2 extends Service {
 	 */
 	@Override
 	public void onCreate() {
+		//https://blog.csdn.net/dandelionela/article/details/86092293
 		// https://www.jianshu.com/p/71e16b95988a
 		// https://blog.csdn.net/u010784887/article/details/79675147
 		//if (Build.VERSION.SDK_INT >= 26) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			// 通知渠道的id
 			String CHANNEL_ID = "my_channel_01";
+			NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "MyShieldService", NotificationManager.IMPORTANCE_MIN);
+			nm.createNotificationChannel(channel);
+
 			// Create a notification and set the notification channel.
-			Notification notification = new  NotificationCompat.Builder(this,CHANNEL_ID )
-					.setContentTitle("MyShieldService2 title") .setContentText("MyShieldService2 text.")
+			Notification notification = new  NotificationCompat.Builder(this, CHANNEL_ID)
+					.setContentTitle("MyShieldService title") .setContentText("MyShieldService text.")
 					.setSmallIcon(R.drawable.ic_launcher_foreground)
+					.setAutoCancel(true)
 					.build();
-			startForeground(1,notification);
+			Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+			notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			notification.contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+			startForeground(1, notification);
 		}
 		super.onCreate();
 	}
@@ -77,6 +133,11 @@ public class MyShieldService2 extends Service {
 	 */
 	@Override
 	public void onDestroy() {
+		/* 2019.2.13: 8.0中，permission denial，后台服务权限不够，拿不到这个消息
+		//取消注册去电广播接收者
+		unregisterReceiver(receiver);
+		receiver = null;
+        */
 		tm.listen(mListener, PhoneStateListener.LISTEN_NONE);
 		mListener = null;
 		tm = null;
@@ -84,6 +145,8 @@ public class MyShieldService2 extends Service {
 		// 取消电话的监听,采取线程守护的方法，当一个服务关闭后，开启另外一个服务，除非你很快把两个服务同时关闭才能完成
 		Intent i = new Intent(this,MyShieldService.class);
 		Bundle paramBundle = new Bundle();
+//		paramBundle.putString(CommonParams.PARAM_TYPE, CfgParamMgr.getInstance().getMachineType());//360,X900
+//		paramBundle.putBoolean(CommonParams.PARAM_SYSRECORDER,CfgParamMgr.getInstance().getSysRecorderFlag());
         paramBundle.putBoolean(CommonParams.TXT_ONCREATE,false);
 		i.putExtras(paramBundle);
 		// https://www.jianshu.com/p/71e16b95988a

@@ -2,6 +2,9 @@ package com.yangshuo.myshieldoffice;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -12,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
@@ -23,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+
+import static java.lang.Thread.sleep;
 
 public class MyShieldService extends Service {
     // 电话管理器
@@ -116,22 +122,30 @@ public class MyShieldService extends Service {
      */
     @Override
     public void onCreate() {
+        //https://blog.csdn.net/dandelionela/article/details/86092293
         // https://www.jianshu.com/p/71e16b95988a
         // https://blog.csdn.net/u010784887/article/details/79675147
         //if (Build.VERSION.SDK_INT >= 26) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 通知渠道的id
             String CHANNEL_ID = "my_channel_01";
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "MyShieldService", NotificationManager.IMPORTANCE_LOW);
+            nm.createNotificationChannel(channel);
+
             // Create a notification and set the notification channel.
             Notification notification = new  NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("MyShieldService title") .setContentText("MyShieldService text.")
                     .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setAutoCancel(true)
                     .build();
+            Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            notification.contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
             startForeground(1, notification);
         }
         super.onCreate();
     }
-
     /**
      * 服务销毁的时候调用的方法
      */

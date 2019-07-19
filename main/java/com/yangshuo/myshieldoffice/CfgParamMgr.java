@@ -195,12 +195,17 @@ public class CfgParamMgr {
             }
             else if(strDeviceID.contains("865970037231410"))
             {
-                strMachineName = "华为Mate9无wifi";
+                strMachineName = "Mate9无wifi";
+                strMachineType = CommonParams.typeMate9;
+            }
+            else if(strDeviceID.contains("864684033630746"))
+            {
+                strMachineName = "Mate9@家";
                 strMachineType = CommonParams.typeMate9;
             }
             else if(strDeviceID.contains("864678039924814"))
             {
-                strMachineName = "华为Mate9金";
+                strMachineName = "Mate9金";
                 strMachineType = CommonParams.typeMate9;
                 bIsServerMode = true;
             }
