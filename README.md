@@ -1,4 +1,8 @@
 # MyShieldOffice
+support for android 9.0<br>
+Already tested on HUAWEI Mate9 EMUI 9.0/android 9.0 -- 2019.7.19<br>
+Update for Notification Channel<br>
+<br>
 support for android 8.0<br>
 Already tested on HUAWEI Mate9 EMUI 8.0/android 8.0 -- 2019.2.13<br>
 <br>
