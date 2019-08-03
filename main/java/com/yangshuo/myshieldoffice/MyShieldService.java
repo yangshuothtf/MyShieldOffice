@@ -174,6 +174,22 @@ public class MyShieldService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //安卓8.0以上
             startForegroundService(i);
+            //安卓8.1以上
+            // 通知渠道的id
+            String CHANNEL_ID = "my_channel_02";
+            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "MyShieldService", NotificationManager.IMPORTANCE_LOW);
+            nm.createNotificationChannel(channel);
+
+            // Create a notification and set the notification channel.
+            Notification notification = new  NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("MyShieldService background") .setContentText("MyShieldService 2.")
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setAutoCancel(true)
+                    .build();
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            notification.contentIntent = PendingIntent.getActivity(this, 0, i, 0);
+            startForeground(1, notification);
         } else {
             startService(i);
         }
